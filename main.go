@@ -1,49 +1,33 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/cetRide/api-rideyu/api/controllers"
 	r "github.com/cetRide/api-rideyu/api/routes"
 	"github.com/cetRide/api-rideyu/infrastructure/repository"
 	"github.com/cetRide/api-rideyu/usecase"
-	"github.com/gorilla/handlers"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "rideyu"
-	password = "password"
-	dbname   = "pexs"
-)
-
-func connectDB() *sql.DB {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		fmt.Print("error1")
-		fmt.Print(err)
-		panic(err)
-	}
-
-
-	err = db.Ping()
-	if err != nil {
-		fmt.Print("error2")
-		fmt.Print(err)
-		panic(err)
-	}
-	return db
-}
-
 func main() {
-	dba := connectDB()
+
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+	username := os.Getenv("db_user")
+	password := os.Getenv("db_pass")
+	dbName := os.Getenv("db_name")
+	dbHost := os.Getenv("db_host")
+	port := os.Getenv("PORT")
+	dbUrI := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s",
+		dbHost, username, dbName, password)
+
+	dba := repository.ConnectDB(dbUrI)
 
 	conn := repository.NewRepo(dba)
 
@@ -53,11 +37,7 @@ func main() {
 
 	router := r.NewRouter(h)
 
-	err := http.ListenAndServe(":5004",
-		handlers.CORS(
-			handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
-			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS"}),
-			handlers.AllowedOrigins([]string{"*"}))(router))
+	err = http.ListenAndServe(":"+port, router)
 	if err != nil {
 		panic(err)
 	}
