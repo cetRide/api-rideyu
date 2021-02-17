@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"log"
 	"os"
 
-	"github.com/cetRide/api-rideyu/api/controllers"
+	"github.com/cetRide/api-rideyu/api/handlers"
 	r "github.com/cetRide/api-rideyu/api/routes"
 	"github.com/cetRide/api-rideyu/infrastructure/repository"
-	"github.com/cetRide/api-rideyu/usecase"
+	service "github.com/cetRide/api-rideyu/services"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -31,14 +31,15 @@ func main() {
 
 	conn := repository.NewRepo(dba)
 
-	repo := usecase.NewRepoHandler(conn)
+	repo := service.NewRepoHandler(conn)
 
-	h := controllers.NewUseCaseHandler(repo)
+	h := handlers.NewUseCaseHandler(repo)
 
 	router := r.NewRouter(h)
-
-	err = http.ListenAndServe(":"+port, router)
-	if err != nil {
-		panic(err)
+	
+	if port == "" {
+		port = "4747"
 	}
+	log.Fatal(router.Run(":" + port))
+
 }

@@ -1,15 +1,23 @@
 package routers
 
 import (
-	"github.com/cetRide/api-rideyu/api/controllers"
-	"github.com/cetRide/api-rideyu/api/middleware"
-	"github.com/gorilla/mux"
+	"net/http"
+
+	handler "github.com/cetRide/api-rideyu/api/handlers"
+	"github.com/gin-gonic/gin"
 )
 
-func NewRouter(h *controllers.UseCaseHandler) *mux.Router {
+func notFound(c *gin.Context) {
+	c.JSON(http.StatusNotFound, gin.H{
+		"status":  404,
+		"message": "Route Not Found",
+	})
+}
+func NewRouter(h *handler.UseCaseHandler) *gin.Engine {
 
-	router := mux.NewRouter()
-	router.Use(middleware.CORS)
-	controllers.GetUserRoutes(router, h)
+	router := gin.Default()
+	// router.Use(middleware.CORS)
+	router.NoRoute(notFound)
+	handler.GetUserRoutes(router, h)
 	return router
 }

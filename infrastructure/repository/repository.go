@@ -1,7 +1,11 @@
 package repository
 
-import "github.com/cetRide/api-rideyu/model"
+import (
+	"context"
+
+	"github.com/cetRide/api-rideyu/model"
+)
 
 type Repository interface {
-	CreateAccount() (model.User)
+	CreateAccount(context.Context, *model.User) (*model.User, error)
 }

@@ -1,19 +1,25 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/cetRide/api-rideyu/model"
 )
 
-func (c *conn) CreateAccount() model.User {
+func (c *conn) CreateAccount(ctx context.Context, user *model.User) (*model.User, error) {
 
 	sqlStatement := `
 		INSERT INTO test (firstname, lastname)
-		VALUES ($1, $2)`
+		VALUES ($1, $2)
+		RETURNING firstname, lastname`
 
-	_, err := c.db.Exec(sqlStatement, "Jonathan", "Calhoun")
+	row := c.db.QueryRowContext(ctx, sqlStatement, user.FirstName, user.LastName)
 
-	if err != nil {
-		panic(err)
-	}
-	return model.User{}
+	newUser := model.User{}
+
+	err := row.Scan(
+		&newUser.FirstName,
+		&newUser.LastName,
+	)
+	return &newUser, err
 }
