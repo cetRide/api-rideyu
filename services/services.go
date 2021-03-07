@@ -22,4 +22,9 @@ func NewRepoHandler(repository repo.Repository) *RepoHandler {
 
 type UseCase interface {
 	RegisterUser(context.Context, *forms.UserForm) (*model.User, error)
+	Login(context.Context, *forms.LoginForm) (*model.User, error)
+	Follow(context.Context, *forms.FollowersForm) (*model.Follower, error)
+	UnFollow(context.Context, *forms.FollowersForm) (map[string]interface{}, error)
+	ViewListOfFollowing(context.Context, *forms.FollowersForm) ([]*model.ListOfFollowers, error)
+	ViewListOfFollowers(context.Context, *forms.FollowersForm) ([]*model.ListOfFollowers, error)
 }

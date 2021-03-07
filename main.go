@@ -13,6 +13,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type PasswordConfig struct {
+	time    uint32
+	memory  uint32
+	threads uint8
+	keyLen  uint32
+}
+
 func main() {
 
 	err := godotenv.Load()
@@ -36,7 +43,7 @@ func main() {
 	h := handlers.NewUseCaseHandler(repo)
 
 	router := r.NewRouter(h)
-	
+
 	if port == "" {
 		port = "4747"
 	}

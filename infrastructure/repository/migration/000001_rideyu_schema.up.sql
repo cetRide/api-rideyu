@@ -10,12 +10,12 @@ $$ LANGUAGE plpgsql;
 
 CREATE TABLE "users"(
    "id" bigserial PRIMARY KEY,
-   "username" varchar (50) UNIQUE NOT NULL,
+   "username" varchar (300) UNIQUE NOT NULL,
    "phone" varchar (300) UNIQUE NOT NULL,
    "email" varchar (300) UNIQUE NOT NULL,
    "firstname" varchar,
    "lastname" varchar,
-   "password" varchar (50) NOT NULL,
+   "password" varchar (512) NOT NULL,
    "cover_photo" varchar,
    "profile_picture" varchar,
    "created_at" timestamp NOT NULL DEFAULT (now()),
@@ -25,6 +25,19 @@ CREATE TABLE "users"(
 CREATE INDEX ON "users" ("username");
 CREATE INDEX ON "users" ("email");
 CREATE INDEX ON "users" ("phone");
+
+CREATE TABLE "followers"(
+   "id" bigserial PRIMARY KEY,
+   "following" bigserial NOT NULL,
+   "follower" bigserial NOT NULL,
+   "created_at" timestamp NOT NULL DEFAULT (now()),
+   "updated_at"  timestamp NOT NULL DEFAULT (now())
+);
+
+ALTER TABLE "followers" ADD FOREIGN KEY ("following") REFERENCES "users" ("id");
+ALTER TABLE "followers" ADD FOREIGN KEY ("followers") REFERENCES "users" ("id");
+
+
 
 -- ON UPDATE - set current_timestamp (trigger).
 DO $$
