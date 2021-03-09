@@ -9,6 +9,7 @@ import (
 	"github.com/cetRide/api-rideyu/forms"
 	"github.com/cetRide/api-rideyu/model"
 	"github.com/cetRide/api-rideyu/utils"
+	"github.com/gin-contrib/sessions"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -215,7 +216,7 @@ func (a *RepoHandler) RegisterUser(ctx context.Context, form *forms.UserForm) (*
 	return results, nil
 }
 
-func (a *RepoHandler) Login(ctx context.Context, form *forms.LoginForm) (*model.User, error) {
+func (a *RepoHandler) Login(ctx context.Context, form *forms.LoginForm, session sessions.Session) (*model.User, error) {
 
 	if form.UsernameOrEmail == "" {
 		return nil, utils.NewErrorWithCodeAndMessage(
@@ -275,7 +276,19 @@ func (a *RepoHandler) Login(ctx context.Context, form *forms.LoginForm) (*model.
 			)
 
 		}
-
+		session.Set("id", user.ID)
+		session.Set("email", user.Email)
+		session.Set("username", user.Email)
+		err = session.Save()
+		if err != nil {
+			return nil, utils.NewErrorWithCodeAndMessage(
+				err,
+				http.StatusInternalServerError,
+				"Internal server error",
+				"id=[%v] Internal server error",
+				form.Password,
+			)
+		}
 		return user, nil
 
 	} else {
@@ -324,10 +337,43 @@ func (a *RepoHandler) Login(ctx context.Context, form *forms.LoginForm) (*model.
 			)
 
 		}
-
+		session.Set("id", user.ID)
+		session.Set("email", user.Email)
+		session.Set("username", user.Email)
+		err = session.Save()
+		if err != nil {
+			return nil, utils.NewErrorWithCodeAndMessage(
+				err,
+				http.StatusInternalServerError,
+				"Internal server error",
+				"id=[%v] Internal server error",
+				form.Password,
+			)
+		}
 		return user, nil
 
 	}
+
+}
+
+func (a *RepoHandler) Logout(ctx context.Context, session sessions.Session) (map[string]interface{}, error) {
+
+	session.Clear()
+	err := session.Save()
+	if err != nil {
+		return nil, utils.NewErrorWithCodeAndMessage(
+			err,
+			http.StatusInternalServerError,
+			"Internal server error",
+			"error=[%v] Internal server error",
+			err,
+		)
+	}
+
+	response := make(map[string]interface{})
+	response["success"] = true
+	response["message"] = "Signed out successfully"
+	return response, nil
 
 }
 

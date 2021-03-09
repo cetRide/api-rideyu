@@ -5,6 +5,7 @@ import (
 
 	"github.com/cetRide/api-rideyu/forms"
 	"github.com/cetRide/api-rideyu/utils"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,8 +58,8 @@ func (h *UseCaseHandler) login(c *gin.Context) {
 		c.JSON(appError.HttpStatus(), appError.JsonResponse())
 		return
 	}
-
-	user, err := h.service.Login(c.Request.Context(), &form)
+	session := sessions.Default(c)
+	user, err := h.service.Login(c.Request.Context(), &form, session)
 	if err != nil {
 		appError := utils.NewError(
 			err,
@@ -200,7 +201,7 @@ func (h *UseCaseHandler) viewFollowers(c *gin.Context) {
 		c.JSON(appError.HttpStatus(), appError.JsonResponse())
 		return
 	}
-	
+
 	c.JSON(http.StatusCreated, response)
 }
 
