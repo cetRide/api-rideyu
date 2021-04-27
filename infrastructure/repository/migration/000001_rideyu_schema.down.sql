@@ -1,8 +1,7 @@
 
-DROP TABLE IF EXISTS likes;
-DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS parent_child_comments;
+DROP TABLE IF EXISTS comment_likes;
 DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS post_likes;
 DROP TABLE IF EXISTS posts_media;
 DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS followers;

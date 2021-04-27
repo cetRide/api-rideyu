@@ -65,7 +65,7 @@ CREATE TABLE "comments"(
    "user_id" bigint NOT NULL,
    "post_id" bigint NOT NULL,
    "comment" text NOT NULL,
-   "no_of_likes" bigint,
+   "parent_comment_id"
    "created_at" timestamp NOT NULL DEFAULT (now()),
    "updated_at"  timestamp NOT NULL DEFAULT (now())
 );
@@ -73,38 +73,27 @@ CREATE TABLE "comments"(
 ALTER TABLE "comments" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 ALTER TABLE "comments" ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id");
 
-CREATE TABLE "parent_child_comments"(
+CREATE TABLE "post_likes"(
    "id" bigserial PRIMARY KEY,
-   "parent_comment_id" bigint NOT NULL,
-   "child_comment_id" bigint NOT NULL,
-   "created_at" timestamp NOT NULL DEFAULT (now()),
-   "updated_at"  timestamp NOT NULL DEFAULT (now())
-);
-
-ALTER TABLE "parent_child_comments" ADD FOREIGN KEY ("parent_comment_id") REFERENCES "comments" ("id");
-ALTER TABLE "parent_child_comments" ADD FOREIGN KEY ("child_comment_id") REFERENCES "comments" ("id");
-
-CREATE TABLE "categories"(
-   "id" bigserial PRIMARY KEY,
-   "type_code" char(1) UNIQUE NOT NULL,
-   "type_code_name" text UNIQUE NOT NULL,
-   "created_at" timestamp NOT NULL DEFAULT (now()),
-   "updated_at"  timestamp NOT NULL DEFAULT (now())
-);
-
-CREATE TABLE "likes"(
-   "id" bigserial PRIMARY KEY,
-   "entity_id" bigint NOT NULL,
+   "post_id" bigint NOT NULL,
    "user_id" bigint NOT NULL,
-   "type_code" char(1) NOT NULL,
    "created_at" timestamp NOT NULL DEFAULT (now()),
    "updated_at"  timestamp NOT NULL DEFAULT (now())
 );
 
-ALTER TABLE "likes" ADD FOREIGN KEY ("entity_id") REFERENCES "comments" ("id");
-ALTER TABLE "likes" ADD FOREIGN KEY ("type_code") REFERENCES "categories" ("type_code");
-ALTER TABLE "likes" ADD FOREIGN KEY ("entity_id") REFERENCES "posts" ("id");
-ALTER TABLE "likes" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE "post_likes" ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id");
+ALTER TABLE "post_likes" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
+CREATE TABLE "comment_likes"(
+   "id" bigserial PRIMARY KEY,
+   "comment_id" bigint NOT NULL,
+   "user_id" bigint NOT NULL,
+   "created_at" timestamp NOT NULL DEFAULT (now()),
+   "updated_at"  timestamp NOT NULL DEFAULT (now())
+);
+
+ALTER TABLE "comment_likes" ADD FOREIGN KEY ("comment_id") REFERENCES "comments" ("id");
+ALTER TABLE "comment_likes" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 
 -- ON UPDATE - set current_timestamp (trigger).

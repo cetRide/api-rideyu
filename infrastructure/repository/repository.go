@@ -29,5 +29,7 @@ type (
 		SavePost(context.Context, *model.Post) (sql.Result, error)
 		SaveComment(context.Context, *model.Comment) (sql.Result, error)
 		ReplyComment(context.Context, *model.Comment, int64) (sql.Result, error)
+		FetchPosts(context.Context) ([]*model.FetchedPosts, error)
+		FetchComments(context.Context, int64) ([]*model.FetchedComment, error)
 	}
 )

@@ -92,9 +92,43 @@ func (a *RepoHandler) ReplyComment(ctx context.Context, form *forms.CommentForm)
 			"Failed to save reply",
 		)
 	}
+	return utils.Message(true, "Reply saved."), nil
+}
 
+func (a *RepoHandler) FetchComments(ctx context.Context, postId int64) (map[string]interface{}, error) {
+
+	comments, err := a.repository.FetchComments(ctx, postId)
+
+	if err != nil {
+		return nil, utils.NewErrorWithCodeAndMessage(
+			err,
+			http.StatusInternalServerError,
+			"Failed to fetch comments",
+			"Failed to fetch comments",
+		)
+	}
 	reponse := make(map[string]interface{})
 	reponse["success"] = true
-	reponse["message"] = "Reply saved."
+	reponse["comments"] = comments
 	return reponse, nil
+
+}
+
+func (a *RepoHandler) FetchPosts(ctx context.Context) (map[string]interface{}, error) {
+
+	posts, err := a.repository.FetchPosts(ctx)
+
+	if err != nil {
+		return nil, utils.NewErrorWithCodeAndMessage(
+			err,
+			http.StatusInternalServerError,
+			"Failed to fetch posts",
+			"Failed to fetch posts",
+		)
+	}
+	reponse := make(map[string]interface{})
+	reponse["success"] = true
+	reponse["posts"] = posts
+	return reponse, nil
+
 }

@@ -40,5 +40,7 @@ type (
 		CreatePost(context.Context, *forms.PostForm) (map[string]interface{}, error)
 		CommentPost(context.Context, *forms.CommentForm) (map[string]interface{}, error)
 		ReplyComment(context.Context, *forms.CommentForm) (map[string]interface{}, error)
+		FetchComments(context.Context, int64) (map[string]interface{}, error)
+		FetchPosts(context.Context) (map[string]interface{}, error)
 	}
 )

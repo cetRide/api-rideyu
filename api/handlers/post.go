@@ -157,9 +157,59 @@ func (h *UseCaseHandler) replyComment(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
+func (h *UseCaseHandler) fetchComments(c *gin.Context) {
+
+	postId, err := strconv.ParseInt(c.Params.ByName("post-id"), 10, 64)
+
+	if err != nil {
+		appError := utils.NewError(
+			err,
+			"Failed to fetch comments",
+		)
+
+		appError.LogErrorMessages()
+
+		c.JSON(appError.HttpStatus(), appError.JsonResponse())
+		return
+	}
+
+	response, err := h.service.FetchComments(c.Request.Context(), postId)
+	if err != nil {
+		appError := utils.NewError(
+			err,
+			"Failed to fetch comments",
+		)
+
+		appError.LogErrorMessages()
+
+		c.JSON(appError.HttpStatus(), appError.JsonResponse())
+		return
+	}
+	c.JSON(http.StatusCreated, response)
+}
+
+func (h *UseCaseHandler) fetchPosts(c *gin.Context) {
+
+	response, err := h.service.FetchPosts(c.Request.Context())
+	if err != nil {
+		appError := utils.NewError(
+			err,
+			"Failed to fetch posts",
+		)
+
+		appError.LogErrorMessages()
+
+		c.JSON(appError.HttpStatus(), appError.JsonResponse())
+		return
+	}
+	c.JSON(http.StatusCreated, response)
+}
+
 func PostsRoutes(r *gin.Engine, h *UseCaseHandler) {
-	r.Group("/post")
 	r.POST("/save-post", h.createPost)
 	r.POST("/comment-post/:post-id", h.commentPost)
 	r.POST("/reply-comment/:post-id/:comment-id", h.replyComment)
+	r.GET("/fetch-post-comments/:post-id", h.fetchComments)
+	r.GET("/fetch-posts", h.fetchPosts)
+
 }

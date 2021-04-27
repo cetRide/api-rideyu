@@ -110,3 +110,8 @@ func (e *Error) addLogMessage(err error, includeErr bool, format string, a ...in
 
 	e.logMessages = append([]string{fmt.Sprintf("%s%s", fmt.Sprintf(format, a...), suffix)}, e.logMessages...)
 }
+
+func Message(status bool, message string) map[string]interface{} {
+	return map[string]interface{}{
+		"status": status, "message": message}
+}

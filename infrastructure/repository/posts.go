@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"github.com/cetRide/api-rideyu/model"
 )
@@ -88,4 +89,91 @@ func (c *conn) ReplyComment(ctx context.Context, comment *model.Comment, comment
 	}
 
 	return result, nil
+}
+
+func (c *conn) FetchComments(ctx context.Context, postId int64) ([]*model.FetchedComment, error) {
+	re := strings.NewReplacer("{", "", "}", "")
+	sqlStatement := `
+	WITH RECURSIVE node_rec AS (
+		(SELECT 1 AS depth, ARRAY[id] AS path, *
+		 FROM   comments
+		 WHERE  parent_comment_id = 0
+		)    
+		 UNION ALL
+		 SELECT r.depth + 1, r.path || n.id, n.*
+		 FROM   node_rec r 
+		 JOIN   comments    n ON n.parent_comment_id = r.id
+		 )
+		 SELECT node_rec.path, node_rec.id, node_rec.comment, node_rec.created_at, 
+		 node_rec.parent_comment_id, node_rec.user_id,
+		 users.username, users.profile_picture
+		 FROM   node_rec
+		 INNER JOIN users ON node_rec.user_id = users.id
+		WHERE post_id = $1
+		 ORDER  BY path, created_at`
+
+	var comments []*model.FetchedComment
+
+	rows, err := c.db.QueryContext(ctx, sqlStatement, postId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var comment model.FetchedComment
+		err := rows.Scan(&comment.Path,
+			&comment.ID,
+			&comment.Comment, &comment.CreatedAt, &comment.ParentCommentId,
+			&comment.User_id, &comment.Username, &comment.ProfilePicture,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		comment.Path = re.Replace(comment.Path)
+
+		comments = append(comments, &comment)
+	}
+
+	return comments, nil
+}
+
+func (c *conn) FetchPosts(ctx context.Context) ([]*model.FetchedPosts, error) {
+
+	sqlStatement := `
+	SELECT posts.id, posts.description, users.username, 
+	posts.user_id, posts.created_at, users.profile_picture, posts_media.id, posts_media.file_url
+	FROM posts
+	INNER JOIN users ON posts.user_id = users.id
+	LEFT JOIN posts_media ON posts.id = posts_media.post_id
+	ORDER BY created_at`
+
+	rows, err := c.db.QueryContext(ctx, sqlStatement)
+
+	if err != nil {
+		return nil, err
+	}
+	var posts []*model.FetchedPosts
+	var post model.FetchedPosts
+	var postMedia model.PostMedia
+	for rows.Next() {
+		err := rows.Scan(&post.ID, &post.Description, &post.Username, &post.User_id, &post.CreatedAt,
+			&post.ProfilePicture, &postMedia.Id, &postMedia.FileUrl,
+		)
+		if err != nil {
+			return nil, err
+		}
+		number_of_posts := len(posts)
+
+		if number_of_posts == 0 || posts[number_of_posts-1].ID != post.ID {
+			post.PostMedia = append(post.PostMedia, postMedia)
+			posts = append(posts, &post)
+		} else {
+			posts[number_of_posts-1].PostMedia = append(posts[number_of_posts-1].PostMedia, postMedia)
+		}
+
+	}
+
+	return posts, nil
 }
