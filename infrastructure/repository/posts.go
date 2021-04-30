@@ -143,11 +143,11 @@ func (c *conn) FetchPosts(ctx context.Context) ([]*model.FetchedPosts, error) {
 
 	sqlStatement := `
 	SELECT posts.id, posts.description, users.username, 
-	posts.user_id, posts.created_at, users.profile_picture, posts_media.id, posts_media.file_url
+	posts.user_id, to_date(posts.created_at::TEXT,'YYYY-MM-DD'), users.profile_picture, posts_media.id, posts_media.file_url
 	FROM posts
 	INNER JOIN users ON posts.user_id = users.id
 	LEFT JOIN posts_media ON posts.id = posts_media.post_id
-	ORDER BY created_at`
+	ORDER BY posts.created_at`
 
 	rows, err := c.db.QueryContext(ctx, sqlStatement)
 
@@ -155,9 +155,9 @@ func (c *conn) FetchPosts(ctx context.Context) ([]*model.FetchedPosts, error) {
 		return nil, err
 	}
 	var posts []*model.FetchedPosts
-	var post model.FetchedPosts
-	var postMedia model.PostMedia
 	for rows.Next() {
+		var post model.FetchedPosts
+		var postMedia model.PostMedia
 		err := rows.Scan(&post.ID, &post.Description, &post.Username, &post.User_id, &post.CreatedAt,
 			&post.ProfilePicture, &postMedia.Id, &postMedia.FileUrl,
 		)

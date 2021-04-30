@@ -63,7 +63,7 @@ func (h *UseCaseHandler) login(c *gin.Context) {
 	if err != nil {
 		appError := utils.NewError(
 			err,
-			"Failed to create user",
+			"Failed to login",
 		)
 
 		appError.LogErrorMessages()
@@ -207,7 +207,7 @@ func (h *UseCaseHandler) viewFollowers(c *gin.Context) {
 
 func GetUserRoutes(r *gin.Engine, h *UseCaseHandler) {
 	r.POST("/create-account", h.createUser)
-	r.GET("/login", h.login)
+	r.POST("/login", h.login)
 	r.POST("/follow", h.followUser)
 	r.DELETE("/unfollow", h.unFollowUser)
 	r.GET("/view-following", h.viewFollowing)

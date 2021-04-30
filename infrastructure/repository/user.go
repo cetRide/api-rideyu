@@ -9,16 +9,14 @@ import (
 func (c *conn) SaveUser(ctx context.Context, user *model.User) (*model.User, error) {
 
 	sqlStatement := `
-		INSERT INTO users (username, email, phone, password)
-		VALUES ($1, $2, $3, $4)
-		RETURNING id, username, email, phone`
+		INSERT INTO users (username, email, password)
+		VALUES ($1, $2, $3)
+		RETURNING id, username, email`
 
 	row := c.db.QueryRowContext(ctx, sqlStatement,
 		user.Username,
 		user.Email,
-		user.Phone,
-		user.Password,
-	)
+		user.Password)
 
 	person := model.User{}
 
@@ -26,13 +24,12 @@ func (c *conn) SaveUser(ctx context.Context, user *model.User) (*model.User, err
 		&person.ID,
 		&person.Username,
 		&person.Email,
-		&user.Phone,
 	)
 	return &person, err
 }
 
 func (c *conn) FindByEmail(ctx context.Context, email string) (*model.User, error) {
-	sqlStatement := `SELECT id, username, email, phone, password FROM users WHERE email = $1`
+	sqlStatement := `SELECT id, username, email FROM users WHERE email = $1`
 	row := c.db.QueryRowContext(ctx, sqlStatement, email)
 
 	user := model.User{}
@@ -41,13 +38,11 @@ func (c *conn) FindByEmail(ctx context.Context, email string) (*model.User, erro
 		&user.ID,
 		&user.Username,
 		&user.Email,
-		&user.Phone,
-		&user.Password,
 	)
 	return &user, err
 }
 func (c *conn) FindByPhone(ctx context.Context, phone string) (*model.User, error) {
-	sqlStatement := `SELECT id, username, email, phone, password FROM users WHERE phone = $1`
+	sqlStatement := `SELECT id, username, email FROM users WHERE phone = $1`
 	row := c.db.QueryRowContext(ctx, sqlStatement, phone)
 
 	user := model.User{}
@@ -56,13 +51,11 @@ func (c *conn) FindByPhone(ctx context.Context, phone string) (*model.User, erro
 		&user.ID,
 		&user.Username,
 		&user.Email,
-		&user.Phone,
-		&user.Password,
 	)
 	return &user, err
 }
 func (c *conn) FindByUsername(ctx context.Context, username string) (*model.User, error) {
-	sqlStatement := `SELECT id, username, email, phone, password FROM users WHERE username = $1`
+	sqlStatement := `SELECT id, username, email FROM users WHERE username = $1`
 	row := c.db.QueryRowContext(ctx, sqlStatement, username)
 
 	user := model.User{}
@@ -71,8 +64,6 @@ func (c *conn) FindByUsername(ctx context.Context, username string) (*model.User
 		&user.ID,
 		&user.Username,
 		&user.Email,
-		&user.Phone,
-		&user.Password,
 	)
 	return &user, err
 }

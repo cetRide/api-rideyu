@@ -86,15 +86,16 @@ func IsErrNoRows(err error) bool {
 	}
 }
 
-func (e *Error) JsonResponse() map[string]string {
+func (e *Error) JsonResponse() map[string]interface{} {
 
 	if e.errorMessage == "" {
+
 		e.errorMessage = "Failed to perform request. Please try again."
 	}
 
-	return map[string]string{
+	return map[string]interface{}{
 		"error_message": e.errorMessage,
-	}
+		"success":       false}
 }
 
 func (e *Error) LogErrorMessages() {

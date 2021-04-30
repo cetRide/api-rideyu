@@ -27,8 +27,8 @@ type UseCase interface {
 }
 type (
 	user interface {
-		RegisterUser(context.Context, *forms.UserForm) (*model.User, error)
-		Login(context.Context, *forms.LoginForm, sessions.Session) (*model.User, error)
+		RegisterUser(context.Context, *forms.UserForm) (map[string]interface{}, error)
+		Login(context.Context, *forms.LoginForm, sessions.Session) (map[string]interface{}, error)
 		Logout(context.Context, sessions.Session) (map[string]interface{}, error)
 		Follow(context.Context, *forms.FollowersForm) (*model.Follower, error)
 		UnFollow(context.Context, *forms.FollowersForm) (map[string]interface{}, error)

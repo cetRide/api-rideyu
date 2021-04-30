@@ -49,7 +49,7 @@ func validatePassword(password string) map[string]interface{} {
 		"status": true}
 }
 
-func (a *RepoHandler) RegisterUser(ctx context.Context, form *forms.UserForm) (*model.User, error) {
+func (a *RepoHandler) RegisterUser(ctx context.Context, form *forms.UserForm) (map[string]interface{}, error) {
 
 	if form.Username == "" {
 		return nil, utils.NewErrorWithCodeAndMessage(
@@ -71,15 +71,15 @@ func (a *RepoHandler) RegisterUser(ctx context.Context, form *forms.UserForm) (*
 		)
 	}
 
-	if form.Phone == "" {
-		return nil, utils.NewErrorWithCodeAndMessage(
-			errors.New("Phone number cannot be empty"),
-			http.StatusBadRequest,
-			"Phone number cannot be empty",
-			"Phone=[%v] cannot be empty",
-			form.Phone,
-		)
-	}
+	// if form.Phone == "" {
+	// 	return nil, utils.NewErrorWithCodeAndMessage(
+	// 		errors.New("Phone number cannot be empty"),
+	// 		http.StatusBadRequest,
+	// 		"Phone number cannot be empty",
+	// 		"Phone=[%v] cannot be empty",
+	// 		form.Phone,
+	// 	)
+	// }
 
 	if len(form.Username) > 50 {
 		return nil, utils.NewErrorWithCodeAndMessage(
@@ -123,30 +123,30 @@ func (a *RepoHandler) RegisterUser(ctx context.Context, form *forms.UserForm) (*
 	}
 
 	// find phone
-	_, err := a.repository.FindByPhone(ctx, form.Phone)
+	// _, err := a.repository.FindByPhone(ctx, form.Phone)
 
-	if err != nil && !utils.IsErrNoRows(err) {
-		return nil, utils.NewErrorWithCodeAndMessage(
-			err,
-			http.StatusBadRequest,
-			"Failed to validate user phone number",
-			"Phone=[%v] failed to be validated",
-			form.Phone,
-		)
-	}
+	// if err != nil && !utils.IsErrNoRows(err) {
+	// 	return nil, utils.NewErrorWithCodeAndMessage(
+	// 		err,
+	// 		http.StatusBadRequest,
+	// 		"Failed to validate user phone number",
+	// 		"Phone=[%v] failed to be validated",
+	// 		form.Phone,
+	// 	)
+	// }
 
-	if err == nil {
-		return nil, utils.NewErrorWithCodeAndMessage(
-			errors.New("Phone number already used"),
-			http.StatusConflict,
-			"Phone number already used",
-			"phone=[%v] provided is not available",
-			form.Phone,
-		)
-	}
+	// if err == nil {
+	// 	return nil, utils.NewErrorWithCodeAndMessage(
+	// 		errors.New("Phone number already used"),
+	// 		http.StatusConflict,
+	// 		"Phone number already used",
+	// 		"phone=[%v] provided is not available",
+	// 		form.Phone,
+	// 	)
+	// }
 
 	//find by email
-	_, err = a.repository.FindByEmail(ctx, form.Email)
+	_, err := a.repository.FindByEmail(ctx, form.Email)
 
 	if err != nil && !utils.IsErrNoRows(err) {
 		return nil, utils.NewErrorWithCodeAndMessage(
@@ -198,7 +198,7 @@ func (a *RepoHandler) RegisterUser(ctx context.Context, form *forms.UserForm) (*
 	user := &model.User{
 		Username: form.Username,
 		Email:    form.Email,
-		Phone:    form.Phone,
+		// Phone:    form.Phone,
 		Password: saltedPassword,
 	}
 
@@ -212,11 +212,14 @@ func (a *RepoHandler) RegisterUser(ctx context.Context, form *forms.UserForm) (*
 			"Failed to save user details",
 		)
 	}
+	response := make(map[string]interface{})
+	response["success"] = true
+	response["user"] = results
+	return response, nil
 
-	return results, nil
 }
 
-func (a *RepoHandler) Login(ctx context.Context, form *forms.LoginForm, session sessions.Session) (*model.User, error) {
+func (a *RepoHandler) Login(ctx context.Context, form *forms.LoginForm, session sessions.Session) (map[string]interface{}, error) {
 
 	if form.UsernameOrEmail == "" {
 		return nil, utils.NewErrorWithCodeAndMessage(
@@ -289,7 +292,10 @@ func (a *RepoHandler) Login(ctx context.Context, form *forms.LoginForm, session 
 				form.Password,
 			)
 		}
-		return user, nil
+		response := make(map[string]interface{})
+		response["success"] = true
+		response["user"] = user
+		return response, nil
 
 	} else {
 		user, err := a.repository.FindByUsername(ctx, form.UsernameOrEmail)
@@ -306,9 +312,9 @@ func (a *RepoHandler) Login(ctx context.Context, form *forms.LoginForm, session 
 
 		if err != nil && utils.IsErrNoRows(err) {
 			return nil, utils.NewErrorWithCodeAndMessage(
-				errors.New("Username not found"),
+				errors.New("Incorrect username"),
 				http.StatusNotFound,
-				"User not found",
+				"Incorrect username",
 				"Username=[%v] provided is not available",
 				form.UsernameOrEmail,
 			)
@@ -350,7 +356,10 @@ func (a *RepoHandler) Login(ctx context.Context, form *forms.LoginForm, session 
 				form.Password,
 			)
 		}
-		return user, nil
+		response := make(map[string]interface{})
+		response["success"] = true
+		response["user"] = user
+		return response, nil
 
 	}
 

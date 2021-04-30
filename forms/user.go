@@ -4,7 +4,7 @@ type (
 	UserForm struct {
 		Username string `binding:"required" json:"username"`
 		Email    string `binding:"required" json:"email"`
-		Phone    string `binding:"required" json:"phone"`
+		// Phone    string `binding:"required" json:"phone"`
 		Password string `binding:"required" json:"password"`
 		// FirstName string `binding:"required" json:"firstname"`
 		// LastName  string `binding:"required" json:"lastname"`

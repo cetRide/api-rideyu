@@ -48,7 +48,7 @@ type (
 		Description    string
 		Username       string
 		User_id        string
-		CreatedAt      time.Time
+		CreatedAt      string
 		ProfilePicture sql.NullString
 		PostMedia      []PostMedia
 	}

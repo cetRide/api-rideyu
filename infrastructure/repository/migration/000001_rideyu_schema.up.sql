@@ -11,7 +11,7 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE "users"(
    "id" bigserial PRIMARY KEY,
    "username" varchar (300) UNIQUE NOT NULL,
-   "phone" varchar (300) UNIQUE NOT NULL,
+   "phone" varchar (300) UNIQUE,
    "email" varchar (300) UNIQUE NOT NULL,
    "firstname" varchar,
    "lastname" varchar,
@@ -65,7 +65,7 @@ CREATE TABLE "comments"(
    "user_id" bigint NOT NULL,
    "post_id" bigint NOT NULL,
    "comment" text NOT NULL,
-   "parent_comment_id"
+   "parent_comment_id" bigint NOT NULL DEFAULT (0)
    "created_at" timestamp NOT NULL DEFAULT (now()),
    "updated_at"  timestamp NOT NULL DEFAULT (now())
 );
