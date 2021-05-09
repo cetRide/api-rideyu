@@ -141,13 +141,16 @@ func (c *conn) FetchComments(ctx context.Context, postId int64) ([]*model.Fetche
 
 func (c *conn) FetchPosts(ctx context.Context) ([]*model.FetchedPosts, error) {
 
-	sqlStatement := `
-	SELECT posts.id, posts.description, users.username, 
-	posts.user_id, to_date(posts.created_at::TEXT,'YYYY-MM-DD'), users.profile_picture, posts_media.id, posts_media.file_url
-	FROM posts
-	INNER JOIN users ON posts.user_id = users.id
-	LEFT JOIN posts_media ON posts.id = posts_media.post_id
-	ORDER BY posts.created_at`
+sqlStatement :=
+`SELECT posts.id, posts.description, users.username, 
+CASE WHEN post_likes.user_id = 1 THEN 1 ELSE 0 END AS like_status, 
+posts.user_id, to_date(posts.created_at::TEXT,'YYYY-MM-DD'), 
+users.profile_picture, posts_media.id, posts_media.file_url
+FROM posts
+INNER JOIN users ON posts.user_id = users.id
+LEFT JOIN posts_media ON posts.id = posts_media.post_id
+LEFT JOIN post_likes ON posts.id = post_likes.post_id
+ORDER BY posts.created_at;`
 
 	rows, err := c.db.QueryContext(ctx, sqlStatement)
 
@@ -158,7 +161,7 @@ func (c *conn) FetchPosts(ctx context.Context) ([]*model.FetchedPosts, error) {
 	for rows.Next() {
 		var post model.FetchedPosts
 		var postMedia model.PostMedia
-		err := rows.Scan(&post.ID, &post.Description, &post.Username, &post.User_id, &post.CreatedAt,
+		err := rows.Scan(&post.ID, &post.Description, &post.Username, &post.LikeStatus, &post.User_id, &post.CreatedAt,
 			&post.ProfilePicture, &postMedia.Id, &postMedia.FileUrl,
 		)
 		if err != nil {
@@ -176,4 +179,25 @@ func (c *conn) FetchPosts(ctx context.Context) ([]*model.FetchedPosts, error) {
 	}
 
 	return posts, nil
+}
+
+func (c *conn) FetchPostLikesCount(ctx context.Context, post_id string) (string, error) {
+	sqlStatement := `SELECT COUNT(post_likes.id) FROM post_likes WHERE post_id = $1`
+	var count string
+	err := c.db.QueryRowContext(ctx, sqlStatement, post_id).Scan(&count)
+
+	if err != nil {
+		return "", err
+	}
+	return count, nil
+}
+func (c *conn) FetchPostCommentsCount(ctx context.Context, post_id string) (string, error) {
+	sqlStatement := `SELECT COUNT(comments.id) FROM comments WHERE post_id = $1`
+	var count string
+	err := c.db.QueryRowContext(ctx, sqlStatement, post_id).Scan(&count)
+
+	if err != nil {
+		return "", err
+	}
+	return count, nil
 }

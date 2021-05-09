@@ -132,3 +132,38 @@ func (a *RepoHandler) FetchPosts(ctx context.Context) (map[string]interface{}, e
 	return reponse, nil
 
 }
+
+
+func (a *RepoHandler) FetchPostCommentsCount(ctx context.Context, post_id string) (map[string]interface{}, error){
+	count, err := a.repository.FetchPostCommentsCount(ctx, post_id)
+
+	if err != nil {
+		return nil, utils.NewErrorWithCodeAndMessage(
+			err,
+			http.StatusInternalServerError,
+			"Failed to fetch comments count",
+			"Failed to fetch comments count",
+		)
+	}
+	reponse := make(map[string]interface{})
+	reponse["success"] = true
+	reponse["count"] = count
+	return reponse, nil
+}
+
+func (a *RepoHandler) FetchPostLikesCount(ctx context.Context, post_id string) (map[string]interface{}, error){
+	count, err := a.repository.FetchPostLikesCount(ctx, post_id)
+
+	if err != nil {
+		return nil, utils.NewErrorWithCodeAndMessage(
+			err,
+			http.StatusInternalServerError,
+			"Failed to fetch likes count",
+			"Failed to fetch likes count",
+		)
+	}
+	reponse := make(map[string]interface{})
+	reponse["success"] = true
+	reponse["count"] = count
+	return reponse, nil
+}

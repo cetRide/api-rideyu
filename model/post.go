@@ -39,16 +39,19 @@ type (
 		CreatedAt      time.Time
 		ProfilePicture sql.NullString
 	}
+
 	PostMedia struct {
 		Id      sql.NullString
 		FileUrl sql.NullString
 	}
+	
 	FetchedPosts struct {
 		ID             int64
 		Description    string
 		Username       string
 		User_id        string
 		CreatedAt      string
+		LikeStatus     string
 		ProfilePicture sql.NullString
 		PostMedia      []PostMedia
 	}

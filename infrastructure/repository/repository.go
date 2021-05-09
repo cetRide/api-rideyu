@@ -31,5 +31,7 @@ type (
 		ReplyComment(context.Context, *model.Comment, int64) (sql.Result, error)
 		FetchPosts(context.Context) ([]*model.FetchedPosts, error)
 		FetchComments(context.Context, int64) ([]*model.FetchedComment, error)
+		FetchPostCommentsCount(context.Context, string) (string, error)
+		FetchPostLikesCount(context.Context, string) (string, error)
 	}
 )

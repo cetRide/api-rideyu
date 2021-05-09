@@ -205,11 +205,52 @@ func (h *UseCaseHandler) fetchPosts(c *gin.Context) {
 	c.JSON(http.StatusCreated, response)
 }
 
+func (h *UseCaseHandler) fetchPostCommentsCount(c *gin.Context) {
+
+	postId:= c.Params.ByName("post-id")
+
+	response, err := h.service.FetchPostCommentsCount(c.Request.Context(), postId)
+	if err != nil {
+		appError := utils.NewError(
+			err,
+			"Failed to fetch post comments count",
+		)
+
+		appError.LogErrorMessages()
+
+		c.JSON(appError.HttpStatus(), appError.JsonResponse())
+		return
+	}
+	c.JSON(http.StatusCreated, response)
+}
+
+func (h *UseCaseHandler) fetchPostLikesCount(c *gin.Context) {
+
+	postId:= c.Params.ByName("post-id")
+
+	response, err := h.service.FetchPostLikesCount(c.Request.Context(), postId)
+	if err != nil {
+		appError := utils.NewError(
+			err,
+			"Failed to fetch post likes count",
+		)
+
+		appError.LogErrorMessages()
+
+		c.JSON(appError.HttpStatus(), appError.JsonResponse())
+		return
+	}
+	c.JSON(http.StatusCreated, response)
+}
+
+
 func PostsRoutes(r *gin.Engine, h *UseCaseHandler) {
 	r.POST("/save-post", h.createPost)
 	r.POST("/comment-post/:post-id", h.commentPost)
 	r.POST("/reply-comment/:post-id/:comment-id", h.replyComment)
 	r.GET("/fetch-post-comments/:post-id", h.fetchComments)
 	r.GET("/fetch-posts", h.fetchPosts)
+	r.GET("/fetch-post-comments-count/:post-id", h.fetchPostCommentsCount)
+	r.GET("/fetch-post-likes-count/:post-id", h.fetchPostLikesCount)
 
 }

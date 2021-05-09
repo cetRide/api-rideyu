@@ -42,5 +42,7 @@ type (
 		ReplyComment(context.Context, *forms.CommentForm) (map[string]interface{}, error)
 		FetchComments(context.Context, int64) (map[string]interface{}, error)
 		FetchPosts(context.Context) (map[string]interface{}, error)
+		FetchPostCommentsCount(context.Context, string) (map[string]interface{}, error)
+		FetchPostLikesCount(context.Context, string) (map[string]interface{}, error)
 	}
 )
